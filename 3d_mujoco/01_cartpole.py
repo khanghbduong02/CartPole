@@ -4,36 +4,39 @@ import gymnasium as gym
 from stable_baselines3 import PPO
 
 def main():
-    # Use Gymnasium's native 3D Inverted Pendulum environment
-    # Note: We append '_Gymnasium_Base' to grab the raw environment layout 
-    # so we can cleanly wrap our custom time limits manually.
+    # 1. Configuration Setup
     env_id = "InvertedPendulum-v5"
-    
-    # Set your custom test step limit here (Default is 1000)
     CUSTOM_STEP_LIMIT = 5000 
     
-    # 1. Train the Model (Increased to 200,000 steps so it actually learns to balance)
+    # Define and automatically create a central models directory one level up
+    models_dir = os.path.join("..", "models")
+    os.makedirs(models_dir, exist_ok=True)
+    model_save_path = os.path.join(models_dir, "ppo_mujoco_3d_cartpole")
+    
+    # 2. Train the Model
     print("Initializing modern 3D MuJoCo environment...")
     base_train_env = gym.make(env_id)
     train_env = gym.wrappers.TimeLimit(base_train_env, max_episode_steps=CUSTOM_STEP_LIMIT)
     
     print("Setting up PPO algorithm...")
-    model = PPO("MlpPolicy", train_env, verbose=1, learning_rate=0.0003)
+    # Explicitly using "cpu" for training on the CPU
+    model = PPO("MlpPolicy", train_env, verbose=1, learning_rate=0.0003, device="cpu")
     
-    # Increased budget from 50,000 to 200,000 steps so the AI survives the longer limit
     print("Training the agent for 200,000 steps. Please wait...")
     model.learn(total_timesteps=200000)
     
-    model.save("ppo_mujoco_3d_cartpole")
+    # Save model weights to the central directory
+    model.save(model_save_path)
     train_env.close()
-    print("Training complete! Model saved as 'ppo_mujoco_3d_cartpole.zip'.")
+    print(f"Training complete! Model saved to '{model_save_path}.zip'.")
 
-    # 2. Watch the Trained Model Play (With higher step limit)
+    # 3. Watch the Trained Model Play
     print("\nLaunching 3D window to watch the trained agent play...")
     base_test_env = gym.make(env_id, render_mode="human")
     test_env = gym.wrappers.TimeLimit(base_test_env, max_episode_steps=CUSTOM_STEP_LIMIT)
     
-    model = PPO.load("ppo_mujoco_3d_cartpole", env=test_env)
+    # Load model weights from the central directory
+    model = PPO.load(model_save_path, env=test_env, device="cpu")
     
     obs, _ = test_env.reset()
     for episode in range(5):

@@ -1,0 +1,10 @@
+# Ignore python cache files
+__pycache__/
+*.pyc
+
+# Ignore trained model weights
+models/
+*.zip
+
+# Ignore local virtual environments if you used one
+.venv
