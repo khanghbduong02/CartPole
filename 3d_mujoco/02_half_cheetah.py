@@ -10,12 +10,11 @@ warnings.filterwarnings("ignore", category=UserWarning, module="stable_baselines
 def main():
     # 1. Configuration Setup
     env_id = "HalfCheetah-v5"
-    
-    # INCREASE BUDGET: 2 Million steps gives it ample time to stand up
     TOTAL_STEPS = 2000000  
     
-    # Define and automatically create a central models directory one level up
-    models_dir = os.path.join("..", "models")
+    # PERMANENT PATH FIX: Find this script's directory, then point up one level to 'models'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    models_dir = os.path.abspath(os.path.join(script_dir, "..", "models"))
     os.makedirs(models_dir, exist_ok=True)
     model_save_path = os.path.join(models_dir, "ppo_mujoco_cheetah")
     
@@ -24,9 +23,6 @@ def main():
     train_env = gym.make(env_id)
     
     print("Setting up PPO algorithm on CUDA with exploration tweaks...")
-    # TWEAKS EXPLAINED:
-    # - learning_rate=0.0001: Slower, more precise weight updates
-    # - ent_coef=0.01: Forces the AI to explore random joint motions for longer
     model = PPO(
         "MlpPolicy", 
         train_env, 
@@ -47,7 +43,7 @@ def main():
     # 3. Watch the Trained Cheetah Run Natively
     print("\nLaunching 3D window to watch the trained agent play...")
     test_env = gym.make(env_id, render_mode="human")
-    model = PPO.load(model_save_path, env=test_env)
+    model = PPO.load(model_save_path, env=test_env, device="cuda")
     
     obs, _ = test_env.reset()
     try:
