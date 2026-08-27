@@ -14,35 +14,35 @@ def main():
     os.makedirs(models_dir, exist_ok=True)
     model_save_path = os.path.join(models_dir, "sac_mujoco_cheetah")
     
-    # # 2. Train the Model on CPU
-    # print(f"Initializing 3D MuJoCo {env_id} environment...")
-    # train_env = gym.make(env_id)
+    # 2. Train the Model on CPU
+    print(f"Initializing 3D MuJoCo {env_id} environment...")
+    train_env = gym.make(env_id)
     
-    # print("Setting up SAC (Soft Actor-Critic) algorithm on CPU...")
-    # # SAC BENCHMARK FOR LOCOMOTION:
-    # # - buffer_size=300000: Stores experiences to sample from randomly
-    # # - learning_rate=0.0003: Smooth adjustments to continuous joint forces
-    # # - ent_coef="auto": The AI automatically tunes its exploration to avoid belly sliding
-    # model = SAC(
-    #     "MlpPolicy", 
-    #     train_env, 
-    #     verbose=1, 
-    #     learning_rate=0.0003, 
-    #     buffer_size=300000,
-    #     batch_size=256,
-    #     tau=0.005,
-    #     gamma=0.99,
-    #     ent_coef="auto",
-    #     device="cpu"  # Fast and efficient vector processing on CPU
-    # )
+    print("Setting up SAC (Soft Actor-Critic) algorithm on CPU...")
+    # SAC BENCHMARK FOR LOCOMOTION:
+    # - buffer_size=300000: Stores experiences to sample from randomly
+    # - learning_rate=0.0003: Smooth adjustments to continuous joint forces
+    # - ent_coef="auto": The AI automatically tunes its exploration to avoid belly sliding
+    model = SAC(
+        "MlpPolicy", 
+        train_env, 
+        verbose=1, 
+        learning_rate=0.0003, 
+        buffer_size=300000,
+        batch_size=256,
+        tau=0.005,
+        gamma=0.99,
+        ent_coef="auto",
+        device="cpu"  # Fast and efficient vector processing on CPU
+    )
     
-    # print(f"Training the cheetah with SAC for {TOTAL_STEPS:,} steps. Please wait...")
-    # model.learn(total_timesteps=TOTAL_STEPS)
+    print(f"Training the cheetah with SAC for {TOTAL_STEPS:,} steps. Please wait...")
+    model.learn(total_timesteps=TOTAL_STEPS)
     
-    # # Save model weights to the central directory
-    # model.save(model_save_path)
-    # train_env.close()
-    # print(f"Training complete! Model saved to '{model_save_path}.zip'.")
+    # Save model weights to the central directory
+    model.save(model_save_path)
+    train_env.close()
+    print(f"Training complete! Model saved to '{model_save_path}.zip'.")
 
     # 3. Watch the Trained Cheetah Run
     print("\nLaunching 3D window to watch the trained agent play...")
