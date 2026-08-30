@@ -70,11 +70,25 @@ def main():
         print("Warning: Peak model file not found. Keeping current training layout.")
     # --------------------------------------------------------
 
-    # 3. Watch the Trained Hopper Hop Natively
-    print("\nLaunching 3D window to watch the BEST trained agent play...")
-    test_env = gym.make(env_id, render_mode="human")
+    # 3. Watch the Trained Agent Play
+    print("\nLaunching 3D window to watch the trained agent play...")
     
-    # CRITICAL CHANGE: Updated to target your custom name path string directly!
+    # --- AUTOMATIC GROUND FLOOR EXTENSION CODES ---
+    # We load the environment configuration definitions into memory first
+    base_test_env = gym.make(env_id, render_mode="human")
+    
+    # Access the underlying MuJoCo engine model structural descriptors
+    # The 'floor' geometry layer is traditionally stored at index 0 of the model geoms
+    try:
+        # Increase the size of the floor plane array 
+        # Changing from standard small values to [100, 100, 1] creates a massive grid area
+        base_test_env.unwrapped.model.geom_size[0] = [100.0, 100.0, 1.0]
+        print("-> Checkered ground floor area expanded successfully to a 100x100 zone!")
+    except Exception as e:
+        print(f"Note: Could not automatically upscale the floor texture grid: {e}")
+    # ----------------------------------------------
+    
+    test_env = base_test_env # Map your modified env back to the test loop variable
     model = SAC.load(best_model_path, env=test_env, device="cpu")
     
     obs, _ = test_env.reset()
