@@ -22,13 +22,16 @@ Learn-RL/
 │   ├── 02_half_cheetah.py   # Locomotion with Orientation Wrapper
 │   ├── 03_hopper.py         # Stabilized Single-Legged Hopping (gSDE)
 │   ├── 04_ant.py            # Quadruped Coordination (8 Continuous Joints)
-│   └── 05_reacher.py        # Robotic Arm Inverse Kinematics Tracking
+│   ├── 05_reacher.py        # Robotic Arm Inverse Kinematics Tracking
+│   └── 06_humanoid.py       # 17-Joint Bipedal Locomotion (The Ultimate Boss)
 │
 ├── models/                  # Untracked artifacts directory for saved weights
 │   ├── ppo_mujoco_3d_cartpole.zip
 │   ├── sac_mujoco_cheetah.zip
 │   ├── best_sac_mujoco_hopper.zip
-│   └── best_sac_mujoco_ant.zip
+│   ├── best_sac_mujoco_ant.zip
+│   ├── best_sac_mujoco_reacher.zip
+│   └── best_sac_mujoco_humanoid.zip
 │
 └── .gitignore               # Prevents tracking heavy binary weights (.zip)
 ```
@@ -65,10 +68,16 @@ Learn-RL/
 * **Key Learnings:** Managing large action and observation spaces. Managing extended structural exploration stages while the network builds its initial coordination buffer.
 * **Result:** **Elite.** Achieved an outstanding score of **`5.02e+03`** (5,020+), running clean error-free 1,000-step loops.
 
-### 05. Robotic Arm Target Tracker (`Reacher-v5`) *(Active)*
-* **Algorithm:** SAC (Tuned for Spatial Precision)
-* **Objective:** Coordinate a multi-joint arm to dynamically position and track a randomly spawning target coordinate point on a flat plane.
-* **Key Learnings:** Moving from velocity loops to target-driven continuous coordination models.
+### 05. Robotic Arm Target Tracker (`Reacher-v5`)
+* **Algorithm:** SAC + gSDE
+* **Objective:** Coordinate a multi-joint arm to dynamically position its fingertip inside a randomly spawning target coordinate point.
+* **Key Learnings:** Overcoming distance-to-target penalty mathematics. An untrained arm scores -50 to -30, but a solved network scores near 0.
+* **Result:** **Solved.** Achieved a spectacular evaluation score of **`-2.1`**, snapping onto goals instantly with zero muscle twitching.
+
+### 06. The 17-Joint Humanoid (`Humanoid-v5`) *(Active)*
+* **Algorithm:** SAC + Checkpoints + gSDE (Deep Architecture)
+* **Objective:** Simultaneously stabilize a complex bipedal skeleton to walk forward without collapsing.
+* **The Challenge:** High center of gravity makes it exceptionally top-heavy. Micro-errors in joint alignment cause cascading structure failure.
 
 ---
 
@@ -96,6 +105,6 @@ While PPO handles simple balancing setups beautifully, its "on-policy" nature ma
    ```
 3. **Run Any Project:**
    ```bash
-   python -u 04_ant.py
+   python -u 06_humanoid.py
    ```
    *(Press **Tab** in the pop-up 3D window to activate automated camera tracking!)*
