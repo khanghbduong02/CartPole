@@ -44,9 +44,25 @@ def main():
     train_env.close()
     print(f"Training complete! Model saved to '{model_save_path}.zip'.")
 
-    # 3. Watch the Trained Cheetah Run
+    # 3. Watch the Trained Agent Play
     print("\nLaunching 3D window to watch the trained agent play...")
-    test_env = gym.make(env_id, render_mode="human")
+    
+    # --- AUTOMATIC GROUND FLOOR EXTENSION CODES ---
+    # We load the environment configuration definitions into memory first
+    base_test_env = gym.make(env_id, render_mode="human")
+    
+    # Access the underlying MuJoCo engine model structural descriptors
+    # The 'floor' geometry layer is traditionally stored at index 0 of the model geoms
+    try:
+        # Increase the size of the floor plane array 
+        # Changing from standard small values to [700, 700, 1] creates a massive grid area
+        base_test_env.unwrapped.model.geom_size[0, :] = [700.0, 700.0, 1.0]
+        print("-> Checkered ground floor area expanded successfully to a 700x700 zone!")
+    except Exception as e:
+        print(f"Note: Could not automatically upscale the floor texture grid: {e}")
+    # ----------------------------------------------
+    
+    test_env = base_test_env # Map your modified env back to the test loop variable
     model = SAC.load(model_save_path, env=test_env, device="cpu")
     
     obs, _ = test_env.reset()
